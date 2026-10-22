@@ -324,7 +324,7 @@ const V = {
   RHO: 1.2, CLA: 5.0, CDA: 1.15, AERO_F: 0.44, DRS_DF: 0.80, DRS_DRAG: 0.74,
   MU0: 2.0, MU_SENS: 0.12, MU_R: 1.28, MU_F: 1.04, LAT: 1.15, BF: 20, BR: 20, CF: 1.36, RELAX: 0.5,
   EFF: 0.93, IDLE: 5000, REV: 18000, BIAS: 0.575, FBMAX: 62000, CRR: 0.012,
-  GEARS: [30.8, 25.2, 20.6, 16.9, 13.8, 11.3, 9.2, 7.5]
+  GEARS: [30.8, 25.2, 20.6, 16.9, 13.8, 11.3, 9.2, 6.75]
 };
 const TQ = [[0,0],[2000,150],[5000,215],[8000,262],[11000,300],[14000,320],[16000,316],[17500,305],[18000,298],[19000,280]];
 function torqueAt(rpm) {
@@ -386,7 +386,9 @@ class Car {
     if (this.auto) {
       if (this.gearT <= 0) {
         if (this.gear < 8 && wheelRpm > 17300) { this.gear++; this.shiftT = 0.05; this.gearT = 0.25; }
-        else if (this.gear > 1 && wheelRpm < 8800) { this.gear--; this.shiftT = 0.05; this.gearT = 0.25; }
+        else if (this.gear > 1 && wheelRpm < 11500 && wheelRpm * V.GEARS[this.gear - 2] / ratio < V.REV * 0.97) {
+          this.gear--; this.shiftT = 0.05; this.gearT = brk > 0.1 ? 0.12 : 0.2;
+        }
       }
     } else if (this.gearT <= 0) {
       if (inp.up && this.gear < 8) { this.gear++; this.shiftT = 0.05; this.gearT = 0.2; }
@@ -629,8 +631,8 @@ class AIDriver {
 const DIFFICULTY = [
   { name: 'Rookie', gf: 0.75, pace: 0.82, grid: 5, desc: 'Forgiving pace. Start P6.' },
   { name: 'Club', gf: 0.86, pace: 0.90, grid: 6, desc: 'Solid midfield pace. Start P7.' },
-  { name: 'Pro', gf: 1.03, pace: 1.01, grid: 8, desc: 'Fast and consistent. Start P9.' },
-  { name: 'Legend', gf: 1.08, pace: 1.025, grid: 9, desc: 'They use the whole tire. Start P10.' }
+  { name: 'Pro', gf: 1.05, pace: 1.025, grid: 8, desc: 'Fast and consistent. Start P9.' },
+  { name: 'Legend', gf: 1.08, pace: 1.035, grid: 9, desc: 'They use the whole tire. Start P10.' }
 ];
 const AI_NAMES = [
   ['V. Aldren', 0xd7263d], ['T. Marek', 0x1b998b], ['L. Okafor', 0xf4a300], ['S. Brandt', 0x3a86ff],
