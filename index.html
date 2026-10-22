@@ -337,7 +337,7 @@ const engBrake = rpm => -(30 + 130 * clamp(rpm / V.REV, 0, 1));
 const FMAX = (() => { const t = []; for (let v = 0; v <= 110; v++) { let best = 0; for (const r of V.GEARS) { const rpm = v / V.RW * r * 60 / TAU; if (rpm > V.REV) continue; best = Math.max(best, torqueAt(Math.max(rpm, V.IDLE)) * r * V.EFF / V.RW); } t.push(best); } return t; })();
 const fmaxAt = v => FMAX[clamp(Math.round(v), 0, 110)];
 const aeroK = V.RHO * V.CLA * 0.5, dragK = V.RHO * V.CDA * 0.5;
-const VMAX = 320 / 3.6;
+const VMAX = 360 / 3.6;
 
 function tireMu(Fz) { return clamp(V.MU0 - V.MU_SENS * Fz / 4000, 1.15, 2.1); }
 const sgn = x => (x > 0 ? 1 : x < 0 ? -1 : 0);
@@ -629,8 +629,8 @@ class AIDriver {
 const DIFFICULTY = [
   { name: 'Rookie', gf: 0.75, pace: 0.82, grid: 5, desc: 'Forgiving pace. Start P6.' },
   { name: 'Club', gf: 0.86, pace: 0.90, grid: 6, desc: 'Solid midfield pace. Start P7.' },
-  { name: 'Pro', gf: 1.08, pace: 1.02, grid: 8, desc: 'Fast and consistent. Start P9.' },
-  { name: 'Legend', gf: 1.07, pace: 1.035, grid: 9, desc: 'They use the whole tire. Start P10.' }
+  { name: 'Pro', gf: 1.03, pace: 1.01, grid: 8, desc: 'Fast and consistent. Start P9.' },
+  { name: 'Legend', gf: 1.08, pace: 1.025, grid: 9, desc: 'They use the whole tire. Start P10.' }
 ];
 const AI_NAMES = [
   ['V. Aldren', 0xd7263d], ['T. Marek', 0x1b998b], ['L. Okafor', 0xf4a300], ['S. Brandt', 0x3a86ff],
