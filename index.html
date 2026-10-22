@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Ardennes GP</title>
+<title>F1 Simulator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -120,7 +120,7 @@ tr.me td{background:rgba(255,210,63,.95);color:#14130a}
 
 <div id="menu">
   <div class="left">
-    <h1>Ardennes GP<small>Ten V8 cars, one forest circuit modelled on Spa-Francorchamps. Keep it on the road for five or ten laps.</small></h1>
+    <h1>F1 Simulator<small>Ten V8 cars, one forest circuit modelled on Spa-Francorchamps. Keep it on the road for three, five or ten laps.</small></h1>
     <div class="opt"><label>Race length</label><div class="seg" id="o-laps"></div></div>
     <div class="opt"><label>Rivals</label><div class="seg" id="o-diff"></div><div id="diff-desc"></div></div>
     <div class="opt"><label>Driver aids</label><div class="seg" id="o-assist"></div></div>
@@ -2419,8 +2419,8 @@ function buildMenu() {
     const el = $(id); el.innerHTML = '';
     opts.forEach((o, i) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = o; b.className = settings[key] === i ? 'on' : ''; b.onclick = () => { settings[key] = i; [...el.children].forEach((x, j) => x.classList.toggle('on', j === i)); if (cb) cb(i); }; el.appendChild(b); });
   };
-  settings.lapsIdx = 0; settings.autoIdx = 0;
-  seg('o-laps', ['5 laps', '10 laps'], 'lapsIdx', i => { settings.laps = i ? 10 : 5; });
+  settings.lapsIdx = 1; settings.autoIdx = 0;
+  seg('o-laps', ['3 laps', '5 laps', '10 laps'], 'lapsIdx', i => { settings.laps = [3, 5, 10][i]; });
   seg('o-diff', DIFFICULTY.map(d => d.name), 'diff', i => { $('diff-desc').textContent = DIFFICULTY[i].desc; });
   seg('o-assist', ASSIST_PRESETS.map(a => a.name), 'assist');
   seg('o-gear', ['Automatic', 'Manual paddles'], 'autoIdx', i => { settings.auto = i === 0; });
