@@ -2227,7 +2227,7 @@ function flash(msg, ms) { const el = $('msg'); el.textContent = msg; el.classLis
 
 const led = [];
 function buildHUD() {
-  const bar = $('leds'); bar.innerHTML = '';
+  const bar = $('leds'); bar.innerHTML = ''; led.length = 0;
   for (let i = 0; i < 15; i++) { const d = document.createElement('i'); d.className = i < 6 ? 'g' : i < 11 ? 'r' : 'b'; bar.appendChild(d); led.push(d); }
   const tow = $('tower'); tow.innerHTML = '';
   for (let i = 0; i < 10; i++) { const r = document.createElement('div'); r.className = 'row'; r.innerHTML = '<b></b><i></i><span></span><em></em>'; tow.appendChild(r); }
