@@ -2225,10 +2225,9 @@ function updateInput(dt, race) {
 let flashT = 0;
 function flash(msg, ms) { const el = $('msg'); el.textContent = msg; el.classList.add('on'); clearTimeout(flashT); flashT = setTimeout(() => el.classList.remove('on'), ms || 1700); }
 
-const led = [];
 function buildHUD() {
-  const bar = $('leds'); bar.innerHTML = ''; led.length = 0;
-  for (let i = 0; i < 15; i++) { const d = document.createElement('i'); d.className = i < 6 ? 'g' : i < 11 ? 'r' : 'b'; bar.appendChild(d); led.push(d); }
+  const bar = $('leds'); bar.innerHTML = '';
+  for (let i = 0; i < 15; i++) { const d = document.createElement('i'); d.className = i < 6 ? 'g' : i < 11 ? 'r' : 'b'; bar.appendChild(d); }
   const tow = $('tower'); tow.innerHTML = '';
   for (let i = 0; i < 10; i++) { const r = document.createElement('div'); r.className = 'row'; r.innerHTML = '<b></b><i></i><span></span><em></em>'; tow.appendChild(r); }
   ui.tower = [...tow.children];
@@ -2261,7 +2260,7 @@ function updateHUD(race, now) {
   $('gear').textContent = p.hold && p.u < 1 ? 'N' : p.gear;
   const lit = clamp((p.rpm - 9500) / (V.REV - 9500), 0, 1.02) * 15;
   const flashLed = p.rpm > 17600 && Math.floor(now / 70) % 2 === 0;
-  led.forEach((d, i) => d.classList.toggle('on', flashLed || i < lit));
+  [...$('leds').children].forEach((d, i) => d.classList.toggle('on', flashLed || i < lit));
   $('rpm').textContent = Math.round(p.rpm / 10) * 10;
   $('thr').style.transform = `scaleY(${p.thr.toFixed(2)})`; $('brk').style.transform = `scaleY(${p.brk.toFixed(2)})`;
   $('gx').textContent = (Math.abs(p.ay) / G).toFixed(1) + ' g';
