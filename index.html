@@ -468,9 +468,10 @@ class Car {
     let eRpm = Math.max(wRpm, V.IDLE);
     if (this.gear === 1) eRpm = Math.max(eRpm, V.IDLE + thr * 7500);
     let eng = thr * torqueAt(eRpm) + (1 - thr) * engBrake(eRpm);
-    if (eRpm > V.REV) eng = Math.min(eng, engBrake(eRpm));
+    const revLimit = drs ? 18600 : V.REV;
+    if (eRpm > revLimit) eng = Math.min(eng, engBrake(eRpm));
     if (this.shiftT > 0) eng = Math.min(eng, 0);
-    const Fd = eng * ratio * V.EFF / V.RW;
+    const Fd = eng * ratio * V.EFF / V.RW * (drs ? 1.15 : 1);
 
     // --- aero
     const spd2 = u * u + v * v;
