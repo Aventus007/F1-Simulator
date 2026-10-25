@@ -120,7 +120,8 @@ tr.me td{background:rgba(255,210,63,.95);color:#14130a}
 
 <div id="menu">
   <div class="left">
-    <h1>F1 Simulator<small>Ten V8 cars, one forest circuit modelled on Spa-Francorchamps. Keep it on the road for three, five or ten laps.</small></h1>
+    <h1>F1 Simulator<small>Choose a world-famous circuit, set your race length and take the grid.</small></h1>
+    <div class="opt"><label>Circuit</label><div class="seg" id="o-track"></div></div>
     <div class="opt"><label>Race length</label><div class="seg" id="o-laps"></div></div>
     <div class="opt"><label>Rivals</label><div class="seg" id="o-diff"></div><div id="diff-desc"></div></div>
     <div class="opt"><label>Driver aids</label><div class="seg" id="o-assist"></div></div>
@@ -130,7 +131,7 @@ tr.me td{background:rgba(255,210,63,.95);color:#14130a}
   </div>
   <div class="right">
     <div id="map"></div>
-    <div class="legend"><span><i></i>DRS zones</span><span>Clockwise lap, about 4.3 km</span></div>
+    <div class="legend"><span><i></i>DRS zones</span><span id="track-meta"></span></div>
     <div class="keys">
       <div><kbd>W</kbd><span>Throttle</span></div><div><kbd>S</kbd><span>Brake</span></div>
       <div><kbd>A</kbd> <kbd>D</kbd><span>Steer</span></div><div><kbd>E</kbd> <kbd>Q</kbd><span>Shift up / down (manual)</span></div>
@@ -210,6 +211,64 @@ const CORNER_NAMES = [
   { name: 'Pouhon', c: 29 }, { name: 'Fagnes', c: 32 }, { name: 'Stavelot', c: 34 },
   { name: 'Blanchimont', c: 38 }, { name: 'Bus Stop', c: 41 }
 ];
+const TRACKS = {
+  spa: {
+    name: 'Spa-Francorchamps', shortName: 'Spa', length: null, turns: 19, direction: 'Clockwise',
+    environment: 'forest', ctrl: CTRL, scale: SCALE, elevationScale: ELEV_SCALE,
+    corners: CORNER_NAMES, start: START_CTRL, halfWidth: HALF_W, wallOffset: WALL_OFF,
+    drs: null
+  },
+  silverstone: {
+    name: 'Silverstone', shortName: 'Silverstone', length: 5891, turns: 18, direction: 'Clockwise',
+    environment: 'open', scale: 1, elevationScale: 1, start: 2, halfWidth: 9.6, wallOffset: 2.5,
+    ctrl: [
+      [580,-500,0],[550,-470,0],[520,-440,0],[490,-410,0],[500,-370,0],[550,-350,0],
+      [620,-330,0],[630,-290,0],[650,-250,0],[570,-230,0],[500,-220,0],[450,-250,0],
+      [400,-300,0],[360,-350,0],[330,-390,0],[310,-440,0],[300,-500,0],[310,-535,0],
+      [330,-560,0],[330,-590,0],[300,-610,0],[270,-600,0],[250,-570,0],[230,-540,0],
+      [180,-510,0],[150,-460,0],[145,-400,0],[150,-340,0],[180,-280,0],[260,-200,0],
+      [340,-170,0],[420,-165,0],[500,-140,0],[550,-130,0],[600,-145,0],[640,-165,0],
+      [690,-180,0],[760,-220,0],[840,-280,0],[920,-350,0],[970,-460,0],[1010,-500,0],
+      [1000,-560,0],[950,-620,0],[890,-690,0],[820,-740,0],[790,-710,0],[760,-680,0],
+      [730,-650,0],[700,-620,0],[670,-590,0],[640,-560,0],[610,-530,0]
+    ],
+    corners: [
+      { name: 'Abbey', c: 4 }, { name: 'Farm', c: 6 }, { name: 'Village', c: 7 },
+      { name: 'The Loop', c: 8 }, { name: 'Aintree', c: 10 }, { name: 'Brooklands', c: 16 },
+      { name: 'Luffield', c: 20 }, { name: 'Woodcote', c: 24 }, { name: 'Copse', c: 27 },
+      { name: 'Maggotts', c: 29 }, { name: 'Becketts', c: 32 }, { name: 'Chapel', c: 36 },
+      { name: 'Stowe', c: 40 }, { name: 'Vale', c: 43 }, { name: 'Club', c: 45 }
+    ],
+    drs: [[51,3],[13,16],[36,40]]
+  },
+  monaco: {
+    name: 'Circuit de Monaco', shortName: 'Monaco', length: 3337, turns: 19, direction: 'Clockwise',
+    environment: 'urban', scale: 1, elevationScale: 0, start: 0, halfWidth: 6.05, wallOffset: 3,
+    ctrl: [
+      [0,0,0],[0,60,0],[0,105,0],[8,125,0],[28,140,0],[60,146,1],
+      [105,148,2],[150,150,4],[185,156,6],[210,156,8],[230,156,10],
+      [245,150,11],[252,138,12],[252,124,12],[245,112,11],[230,106,10],
+      [210,106,8],[190,106,6],[170,104,4],[150,100,2],[140,88,1],
+      [142,72,0],[153,58,0],[175,48,0],[205,38,0],[235,28,0],
+      [260,16,0],[274,0,0],[273,-12,0],[262,-20,0],[247,-18,0],
+      [240,-8,0],[230,-2,0],[218,-7,0],[210,-19,0],[190,-30,0],
+      [170,-34,0],[148,-43,0],[125,-58,0],[103,-76,0],[80,-92,0],
+      [60,-103,0],[43,-108,0],[29,-104,0],[20,-95,0],[12,-80,0],
+      [5,-60,0],[1,-40,0],[0,-20,0],[0,-5,0]
+    ],
+    corners: [
+      { name: 'Sainte Devote', c: 3 }, { name: 'Beau Rivage', c: 7 },
+      { name: 'Massenet', c: 9 }, { name: 'Casino', c: 11 },
+      { name: 'Mirabeau Haute', c: 13 }, { name: 'Grand Hotel Hairpin', c: 15 },
+      { name: 'Mirabeau Bas', c: 18 }, { name: 'Portier', c: 22 },
+      { name: 'Tunnel', c: 26 }, { name: 'Nouvelle Chicane', c: 29 },
+      { name: 'Tabac', c: 34 }, { name: 'Louis Chiron', c: 37 },
+      { name: 'Piscine', c: 39 }, { name: 'La Rascasse', c: 41 },
+      { name: 'Anthony Noghes', c: 44 }
+    ],
+    drs: [[49,4]], harbor: [220,40]
+  }
+};
 
 function catmull(p0, p1, p2, p3, t) {
   const t2 = t * t, t3 = t2 * t, o = [0, 0, 0];
@@ -218,18 +277,21 @@ function catmull(p0, p1, p2, p3, t) {
   return o;
 }
 
-function buildTrack() {
-  const N = CTRL.length, SUB = 48, fine = [], ctrlFine = [];
+function buildTrack(trackId = 'spa') {
+  const def = TRACKS[trackId] || TRACKS.spa, ctrl = def.ctrl, N = ctrl.length, SUB = 48, fine = [], ctrlFine = [];
   for (let i = 0; i < N; i++) {
     ctrlFine.push(fine.length);
-    const p0 = CTRL[(i - 1 + N) % N], p1 = CTRL[i], p2 = CTRL[(i + 1) % N], p3 = CTRL[(i + 2) % N];
-    for (let k = 0; k < SUB; k++) { const q = catmull(p0, p1, p2, p3, k / SUB); fine.push([q[0] * SCALE, q[1] * SCALE, q[2] * ELEV_SCALE]); }
+    const p0 = ctrl[(i - 1 + N) % N], p1 = ctrl[i], p2 = ctrl[(i + 1) % N], p3 = ctrl[(i + 2) % N];
+    for (let k = 0; k < SUB; k++) { const q = catmull(p0, p1, p2, p3, k / SUB); fine.push([q[0] * def.scale, q[1] * def.scale, q[2] * def.elevationScale]); }
   }
   // rotate so that start/finish = control START_CTRL
-  const st = ctrlFine[START_CTRL], F = fine.length, rot = [];
+  const st = ctrlFine[def.start], F = fine.length, rot = [];
   for (let i = 0; i < F; i++) rot.push(fine[(i + st) % F]);
+  let rawLength = 0;
+  for (let i = 0; i < F; i++) { const a = rot[i], b = rot[(i + 1) % F]; rawLength += Math.hypot(b[0] - a[0], b[1] - a[1]); }
+  const lengthScale = def.length ? def.length / rawLength : 1;
   const cum = [0];
-  for (let i = 1; i <= F; i++) { const a = rot[i - 1], b = rot[i % F]; cum.push(cum[i - 1] + Math.hypot(b[0] - a[0], b[1] - a[1])); }
+  for (let i = 1; i <= F; i++) { const a = rot[i - 1], b = rot[i % F]; cum.push(cum[i - 1] + Math.hypot((b[0] - a[0]) * lengthScale, (b[1] - a[1]) * lengthScale)); }
   const L0 = cum[F];
   const n = Math.round(L0 / 4), ds = L0 / n;
   const X = new Float64Array(n), Y = new Float64Array(n), H = new Float64Array(n);
@@ -238,9 +300,13 @@ function buildTrack() {
     const tg = k * ds;
     while (cum[seg + 1] < tg) seg++;
     const f = (tg - cum[seg]) / (cum[seg + 1] - cum[seg]), a = rot[seg], b = rot[(seg + 1) % F];
-    X[k] = lerp(a[0], b[0], f); Y[k] = lerp(a[1], b[1], f); H[k] = lerp(a[2], b[2], f);
+    X[k] = lerp(a[0], b[0], f) * lengthScale; Y[k] = lerp(a[1], b[1], f) * lengthScale; H[k] = lerp(a[2], b[2], f);
   }
-  const T = { n, ds, L: n * ds, X, Y, H, hw: HALF_W, wall: HALF_W + WALL_OFF };
+  const T = {
+    id: trackId, name: def.name, shortName: def.shortName, turns: def.turns, direction: def.direction,
+    environment: def.environment, lengthKm: n * ds / 1000,
+    n, ds, L: n * ds, X, Y, H, hw: def.halfWidth, wall: def.halfWidth + def.wallOffset
+  };
   T.tx = new Float64Array(n); T.ty = new Float64Array(n); T.nx = new Float64Array(n); T.ny = new Float64Array(n);
   T.theta = new Float64Array(n); T.kappa = new Float64Array(n); T.grade = new Float64Array(n);
   const wr = i => ((i % n) + n) % n;
@@ -253,8 +319,8 @@ function buildTrack() {
   for (let i = 0; i < n; i++) { k0[i] = wrapPi(T.theta[wr(i + 1)] - T.theta[wr(i - 1)]) / (2 * ds); g0[i] = (H[wr(i + 1)] - H[wr(i - 1)]) / (2 * ds); }
   for (let i = 0; i < n; i++) { let sk = 0, sg = 0; for (let j = -3; j <= 3; j++) { sk += k0[wr(i + j)]; sg += g0[wr(i + j)]; } T.kappa[i] = sk / 7; T.grade[i] = sg / 7; }
   // control point -> arc length
-  T.ctrlS = CTRL.map((_, i) => ((ctrlFine[i] - st + F) % F) === 0 ? 0 : cum[(ctrlFine[i] - st + F) % F] * (T.L / L0));
-  T.corners = CORNER_NAMES.map(c => ({ name: c.name, s: T.ctrlS[c.c] }));
+  T.ctrlS = ctrl.map((_, i) => ((ctrlFine[i] - st + F) % F) === 0 ? 0 : cum[(ctrlFine[i] - st + F) % F] * (T.L / L0));
+  T.corners = def.corners.map(c => ({ name: c.name, s: T.ctrlS[c.c] }));
   T.wr = wr;
   T.at = function (s, off) {
     off = off || 0; s = ((s % T.L) + T.L) % T.L;
@@ -263,11 +329,13 @@ function buildTrack() {
     const ux = tx / l, uy = ty / l;
     return { x: lerp(X[i], X[j], t) - uy * off, y: lerp(Y[i], Y[j], t) + ux * off, h: lerp(H[i], H[j], t), psi: Math.atan2(uy, ux), tx: ux, ty: uy, i };
   };
-  // DRS zones (arc-length ranges) : main straight, Kemmel straight
-  T.drsZones = [
-    { s0: T.L - 230, s1: T.ctrlS[2] - 45 },
-    { s0: T.ctrlS[14] + 10, s1: T.ctrlS[17] - 20 }
-  ];
+  // DRS ranges are specified by control-point indices; Spa keeps its original zones.
+  T.drsZones = def.drs
+    ? def.drs.map(([a, b]) => ({ s0: T.ctrlS[a], s1: T.ctrlS[b] }))
+    : [
+      { s0: T.L - 230, s1: T.ctrlS[2] - 45 },
+      { s0: T.ctrlS[14] + 10, s1: T.ctrlS[17] - 20 }
+    ];
   T.drsZoneAt = function (s) { for (let i = 0; i < T.drsZones.length; i++) { const z = T.drsZones[i]; if (z.s0 <= z.s1 ? (s > z.s0 && s < z.s1) : (s > z.s0 || s < z.s1)) return i; } return -1; };
   T.recover = function (car, speed) {
     const i = car.idx < 0 ? 0 : car.idx;
@@ -289,6 +357,7 @@ function buildTrack() {
     car.dist += dd; car.sPrev = sNow; car.sAlong = ((sNow % T.L) + T.L) % T.L;
   };
   T.surface = d => { const a = Math.abs(d); return a <= T.hw + 0.15 ? 0 : a <= T.hw + 1.3 ? 1 : 2; };
+  if (def.harbor) T.harbor = [def.harbor[0] * lengthScale, def.harbor[1] * lengthScale];
 
   buildRacingLine(T);
   return T;
@@ -322,7 +391,7 @@ function buildRacingLine(T) {
 const V = {
   M: 800, IZ: 1050, L: 3.6, A: 1.96, B: 1.64, H: 0.30, RW: 0.36,
   RHO: 1.2, CLA: 5.0, CDA: 0.93, AERO_F: 0.44, DRS_DF: 0.80, DRS_DRAG: 0.70,
-  MU0: 2.0, MU_SENS: 0.12, MU_R: 1.28, MU_F: 1.04, LAT: 1.15, BF: 20, BR: 20, CF: 1.36, RELAX: 0.5,
+  MU0: 2.0, MU_SENS: 0.12, MU_R: 1.28, MU_F: 1.04, LAT: 1.1845, BF: 20, BR: 20, CF: 1.36, RELAX: 0.5,
   EFF: 0.93, IDLE: 5000, REV: 18000, BIAS: 0.575, FBMAX: 62000, CRR: 0.012,
   GEARS: [30.8, 25.2, 20.6, 16.9, 13.8, 11.3, 9.2, 7.185]
 };
@@ -734,7 +803,7 @@ class Race {
   }
 }
 
-return { buildTrack, Car, Race, AIDriver, V, DIFFICULTY, clamp, lerp, wrapPi, TAU, G, CTRL, SCALE, buildSpeedProfile, torqueAt, carCollide };
+return { buildTrack, TRACKS, Car, Race, AIDriver, V, DIFFICULTY, clamp, lerp, wrapPi, TAU, G, CTRL, SCALE, buildSpeedProfile, torqueAt, carCollide };
 })();
 
 
@@ -882,13 +951,14 @@ return { PROFILES, synthLayer, buildBank };
    ============================================================ */
 (function () {
 'use strict';
-const { buildTrack, Race, DIFFICULTY, V, clamp, lerp, wrapPi, G } = F1Core;
+const { buildTrack, TRACKS, Race, DIFFICULTY, V, clamp, lerp, wrapPi, G } = F1Core;
 const $ = id => document.getElementById(id);
 const fmtT = t => { if (!isFinite(t) || t <= 0) return '--:--.---'; const m = Math.floor(t / 60), s = t - m * 60; return m + ':' + (s < 10 ? '0' : '') + s.toFixed(3); };
 const fmtGap = t => (t < 0 ? '-' : '+') + Math.abs(t).toFixed(1);
 
 /* ---------------- settings ---------------- */
-const settings = { laps: 5, diff: 2, assist: 1, auto: true, engine: 0 };
+const TRACK_OPTIONS = ['spa', 'silverstone', 'monaco'];
+const settings = { laps: 5, diff: 2, assist: 1, auto: true, engine: 0, trackIdx: 0 };
 const ASSIST_PRESETS = [
   { name: 'Full help', assist: 2, tc: 2, abs: true },
   { name: 'Standard', assist: 1, tc: 1, abs: true },
@@ -896,7 +966,7 @@ const ASSIST_PRESETS = [
 ];
 
 /* ---------------- track (shared) ---------------- */
-const T = buildTrack();
+let T = buildTrack(TRACK_OPTIONS[settings.trackIdx]);
 
 /* ---------------- canvas helpers ---------------- */
 function canvasTex(w, h, draw, srgb) {
@@ -1167,6 +1237,7 @@ function makeCarbonMaps() {
 }
 
 function buildWorld() {
+  minH = 1e9;
   scene = new THREE.Scene();
   const fogCol = new THREE.Color(0xb5c3c8);
   scene.fog = new THREE.Fog(fogCol, 70, 1050);
@@ -1250,8 +1321,10 @@ function buildWorld() {
     g.fillStyle = '#c42820'; g.fillRect(w / 2, 0, w / 2, h);
     g.fillStyle = '#1b1d20'; g.fillRect(0, h - 8, w, 8);
     g.fillStyle = '#9aa2a6'; g.fillRect(0, 0, w, 6);
-    g.fillStyle = 'rgba(0,0,0,0.55)'; g.font = 'bold 22px Arial'; g.fillText('SPA', 28, 40);
-    g.fillStyle = 'rgba(255,255,255,0.88)'; g.fillText('ARDENNES', 148, 40);
+    g.fillStyle = 'rgba(0,0,0,0.55)'; g.font = 'bold 22px Arial';
+    g.fillText(T.id === 'spa' ? 'SPA' : T.shortName.toUpperCase(), 18, 40);
+    g.fillStyle = 'rgba(255,255,255,0.88)'; g.font = T.id === 'spa' ? 'bold 22px Arial' : 'bold 15px Arial';
+    g.fillText(T.id === 'spa' ? 'ARDENNES' : T.name.toUpperCase(), 110, 40);
   });
   const kerbAlb = canvasTex(32, 64, (g, w, h) => {
     g.fillStyle = '#d21f16'; g.fillRect(0, 0, w, h / 2);
@@ -1281,8 +1354,8 @@ function buildWorld() {
     normalScale: new THREE.Vector2(0.7, 0.7), side: THREE.DoubleSide
   });
   MAT.road.dithering = true;
-  MAT.grass = new THREE.MeshLambertMaterial({ map: grassTex, color: 0xc6d4a4, side: THREE.DoubleSide });
-  MAT.slope = new THREE.MeshLambertMaterial({ map: slopeTex, color: 0xb7c896, side: THREE.DoubleSide });
+  MAT.grass = new THREE.MeshLambertMaterial({ map: grassTex, color: T.environment === 'urban' ? 0x777d80 : 0xc6d4a4, side: THREE.DoubleSide });
+  MAT.slope = new THREE.MeshLambertMaterial({ map: slopeTex, color: T.environment === 'urban' ? 0x73797c : 0xb7c896, side: THREE.DoubleSide });
   MAT.wall = new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.72, metalness: 0.02, envMapIntensity: 0.12, side: THREE.DoubleSide });
   MAT.kerb = new THREE.MeshStandardMaterial({
     map: kerbAlb, normalMap: kerbNormal, roughness: 0.62, metalness: 0.02,
@@ -1323,7 +1396,8 @@ function buildWorld() {
   ground.updateMatrix();
   scene.add(ground);
 
-  buildForest(y0, wallO);
+  if (T.environment === 'urban') buildUrbanScenery();
+  else buildForest(y0, wallO);
   buildTrackside(hw);
   buildCarAssets();
   buildWheelInstances();
@@ -1403,7 +1477,7 @@ function buildForest(y0, wallO) {
   planeB.applyMatrix4(new THREE.Matrix4().makeRotationY(Math.PI / 2));
   const treeGeo = concatGeo([plane, planeB]);
   plane.dispose(); planeB.dispose();
-  const treeCount = 2200;
+  const treeCount = T.environment === 'open' ? 650 : 2200;
   const trees = new THREE.InstancedMesh(treeGeo, treeMat, treeCount);
   trees.frustumCulled = false;
   trees.castShadow = false;
@@ -1444,6 +1518,43 @@ function buildForest(y0, wallO) {
   trees.count = placed;
   trees.instanceColor.needsUpdate = true;
   scene.add(trees);
+}
+
+function buildUrbanScenery() {
+  const windowTex = canvasTex(128, 128, (g, w, h) => {
+    g.fillStyle = '#a7a29a'; g.fillRect(0, 0, w, h);
+    for (let y = 8; y < h; y += 18) for (let x = 8; x < w; x += 16) {
+      g.fillStyle = ((x * 7 + y * 11) % 5) ? '#34434b' : '#d8b878';
+      g.fillRect(x, y, 8, 10);
+    }
+  });
+  const colors = [0xe2d7c6, 0xd4c8b9, 0xc9c4bd, 0xe8dfcc, 0xbcb7ae, 0xd2d0c8];
+  const materials = colors.map(color => new THREE.MeshStandardMaterial({ color, map: windowTex, roughness: 0.88 }));
+  const block = new THREE.BoxGeometry(1, 1, 1);
+  const rng = (() => { let seed = 23; return () => (seed = seed * 16807 % 2147483647) / 2147483647; })();
+  const clearOfTrack = (x, z, clearance) => {
+    for (let i = 0; i < T.n; i += 3) {
+      const dx = x - T.X[i], dz = z + T.Y[i];
+      if (dx * dx + dz * dz < clearance * clearance) return false;
+    }
+    return true;
+  };
+  const stride = Math.max(3, Math.floor(T.n / 150));
+  for (let i = 0; i < T.n; i += stride) {
+    for (const side of [-1, 1]) {
+      if (rng() < 0.26) continue;
+      const width = 10 + rng() * 18, depth = 9 + rng() * 10, height = 14 + rng() * 48;
+      const off = T.wall + depth * 0.5 + 28 + rng() * 12;
+      const p = T.at(i * T.ds, side * off), x = p.x, z = -p.y;
+      if (!clearOfTrack(x, z, T.hw + Math.hypot(width, depth) * 0.5 + 8)) continue;
+      const building = new THREE.Mesh(block, materials[Math.floor(rng() * materials.length)]);
+      building.position.set(x, p.h + height * 0.5 - 0.2, z);
+      building.rotation.y = p.psi;
+      building.scale.set(width, height, depth);
+      building.castShadow = true; building.receiveShadow = true;
+      scene.add(building);
+    }
+  }
 }
 
 function buildTrackside(hw) {
@@ -1501,20 +1612,22 @@ function buildTrackside(hw) {
   const crowdMat = new THREE.MeshStandardMaterial({ map: crowd, roughness: 1 });
   const roofMat = new THREE.MeshStandardMaterial({ color: 0xd5d8db, roughness: 0.45, metalness: 0.35, envMapIntensity: 0.4 });
   const standGroups = [];
-  for (const side of [1, -1]) {
-    for (let st = 0; st < 3; st++) {
-      const len = 70;
-      const g = new THREE.Group();
-      const stand = new THREE.Mesh(new THREE.BoxGeometry(len, 5 + st * 3, 8), crowdMat);
-      stand.position.set(0, (5 + st * 3) / 2, 0);
-      const roof = new THREE.Mesh(new THREE.BoxGeometry(len + 2, 0.45, 11), roofMat);
-      roof.position.set(0, 9 + st * 3, 0);
-      g.add(stand); g.add(roof);
-      const off = side * (T.wall + 8 + st * 9);
-      const pp = T.at(T.L - 30, off);
-      g.position.set(pp.x, pp.h + st * 2.6, -pp.y);
-      g.rotation.y = pp.psi;
-      scene.add(g); standGroups.push(g);
+  if (T.environment !== 'urban') {
+    for (const side of [1, -1]) {
+      for (let st = 0; st < 3; st++) {
+        const len = 70;
+        const g = new THREE.Group();
+        const stand = new THREE.Mesh(new THREE.BoxGeometry(len, 5 + st * 3, 8), crowdMat);
+        stand.position.set(0, (5 + st * 3) / 2, 0);
+        const roof = new THREE.Mesh(new THREE.BoxGeometry(len + 2, 0.45, 11), roofMat);
+        roof.position.set(0, 9 + st * 3, 0);
+        g.add(stand); g.add(roof);
+        const off = side * (T.wall + 8 + st * 9);
+        const pp = T.at(T.L - 30, off);
+        g.position.set(pp.x, pp.h + st * 2.6, -pp.y);
+        g.rotation.y = pp.psi;
+        scene.add(g); standGroups.push(g);
+      }
     }
   }
 
@@ -1526,38 +1639,42 @@ function buildTrackside(hw) {
   if (slots) { slots.renderOrder = 2; slots.matrixAutoUpdate = false; }
   slotGeos.forEach(g => g.dispose());
 
-  const standGeos = [], roofGeos = [];
-  for (const g of standGroups) {
-    g.updateWorldMatrix(true, true);
-    for (let c = 0; c < g.children.length; c++) {
-      const mesh = g.children[c];
-      const bg = mesh.geometry.clone();
-      bg.applyMatrix4(mesh.matrixWorld);
-      (c === 0 ? standGeos : roofGeos).push(bg);
-      mesh.geometry.dispose();
+  if (standGroups.length) {
+    const standGeos = [], roofGeos = [];
+    for (const g of standGroups) {
+      g.updateWorldMatrix(true, true);
+      for (let c = 0; c < g.children.length; c++) {
+        const mesh = g.children[c];
+        const bg = mesh.geometry.clone();
+        bg.applyMatrix4(mesh.matrixWorld);
+        (c === 0 ? standGeos : roofGeos).push(bg);
+        mesh.geometry.dispose();
+      }
+      scene.remove(g);
     }
-    scene.remove(g);
+    addStatic(concatGeo(standGeos), crowdMat, true);
+    addStatic(concatGeo(roofGeos), roofMat, true);
+    standGeos.forEach(g => g.dispose());
+    roofGeos.forEach(g => g.dispose());
   }
-  addStatic(concatGeo(standGeos), crowdMat, true);
-  addStatic(concatGeo(roofGeos), roofMat, true);
-  standGeos.forEach(g => g.dispose());
-  roofGeos.forEach(g => g.dispose());
 
-  const pitTex = canvasTex(512, 64, (g, w, h) => {
-    g.fillStyle = '#d7d9d6'; g.fillRect(0, 0, w, h);
-    for (let i = 0; i < 10; i++) {
-      g.fillStyle = '#1c2126'; g.fillRect(i * 51 + 8, 28, 36, 30);
-      g.fillStyle = ['#d7263d', '#1b998b', '#f4a300', '#3a86ff', '#ff7b00'][i % 5];
-      g.fillRect(i * 51 + 8, 22, 36, 6);
-    }
-  });
-  pitTex.repeat.set(2, 1);
-  const pit = new THREE.Mesh(new THREE.BoxGeometry(150, 9, 12), new THREE.MeshStandardMaterial({ map: pitTex, roughness: 0.62, metalness: 0.08, envMapIntensity: 0.25 }));
-  const pitP = T.at(T.L - 20, T.wall + 9);
-  pit.position.set(pitP.x, pitP.h + 4.5, -pitP.y);
-  pit.rotation.y = pitP.psi;
-  pit.castShadow = true; pit.receiveShadow = true;
-  scene.add(pit);
+  if (T.environment !== 'urban') {
+    const pitTex = canvasTex(512, 64, (g, w, h) => {
+      g.fillStyle = '#d7d9d6'; g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 10; i++) {
+        g.fillStyle = '#1c2126'; g.fillRect(i * 51 + 8, 28, 36, 30);
+        g.fillStyle = ['#d7263d', '#1b998b', '#f4a300', '#3a86ff', '#ff7b00'][i % 5];
+        g.fillRect(i * 51 + 8, 22, 36, 6);
+      }
+    });
+    pitTex.repeat.set(2, 1);
+    const pit = new THREE.Mesh(new THREE.BoxGeometry(150, 9, 12), new THREE.MeshStandardMaterial({ map: pitTex, roughness: 0.62, metalness: 0.08, envMapIntensity: 0.25 }));
+    const pitP = T.at(T.L - 20, T.wall + 9);
+    pit.position.set(pitP.x, pitP.h + 4.5, -pitP.y);
+    pit.rotation.y = pitP.psi;
+    pit.castShadow = true; pit.receiveShadow = true;
+    scene.add(pit);
+  }
 
   for (const c of T.corners) {
     const tex = canvasTex(512, 96, (g, w, h) => {
@@ -1570,7 +1687,8 @@ function buildTrackside(hw) {
     });
     tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
     const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthWrite: false }));
-    spr.scale.set(24, 4.5, 1);
+    const labelWidth = T.environment === 'urban' ? 14 : 24;
+    spr.scale.set(labelWidth, 4.5, 1);
     const kk = Math.floor(c.s / T.ds) % T.n, side = T.kappa[kk] > 0 ? -1 : 1;
     const p = P3(kk, side * (T.wall + 5), 10);
     spr.position.set(p[0], p[1], p[2]);
@@ -2392,10 +2510,11 @@ function updateCamera(dt, race) {
   sunLight.position.set(p.x + sd.x * 120, py + sd.y * 120, -p.y + sd.z * 120);
   scene.getObjectByName('sky').position.copy(camera.position);
   const spT = clamp((spd - 15) / 45, 0, 1);
-  if (camMode === 2) { fx.blurPx = 18 * spT; fx.cy = 0.52; fx.dof = 0; }
-  else if (camMode === 3) { fx.blurPx = 11 * spT; fx.cy = 0.5; fx.dof = 0.16; }
-  else if (camMode === 1) { fx.blurPx = 10 * spT; fx.cy = 0.48; fx.dof = 0.28 * (1 - spT * 0.4); }
-  else { fx.blurPx = 18 * spT; fx.cy = 0.46; fx.dof = 0; }
+  const blurBoost = spd > 230 / 3.6 ? 1.015 : 1;
+  if (camMode === 2) { fx.blurPx = 18 * spT * blurBoost; fx.cy = 0.52; fx.dof = 0; }
+  else if (camMode === 3) { fx.blurPx = 11 * spT * blurBoost; fx.cy = 0.5; fx.dof = 0.16; }
+  else if (camMode === 1) { fx.blurPx = 10 * spT * blurBoost; fx.cy = 0.48; fx.dof = 0.28 * (1 - spT * 0.4); }
+  else { fx.blurPx = 18 * spT * blurBoost; fx.cy = 0.46; fx.dof = 0; }
   _focus.set(p.x, py + 0.7, -p.y);
   fx.focus = Math.max(2.5, camera.position.distanceTo(_focus));
   if (prevHead === null) prevHead = camState.head;
@@ -2413,19 +2532,58 @@ function resize() {
 }
 
 /* ---------------- menu ---------------- */
+function disposeWorld() {
+  if (!scene) return;
+  const geometries = new Set(), materials = new Set(), textures = new Set();
+  scene.traverse(object => {
+    if (object.geometry) geometries.add(object.geometry);
+    const list = Array.isArray(object.material) ? object.material : [object.material];
+    list.forEach(material => { if (material) materials.add(material); });
+  });
+  Object.values(MAT).forEach(material => { if (material) materials.add(material); });
+  materials.forEach(material => {
+    Object.keys(material).forEach(key => {
+      const value = material[key];
+      if (value && value.isTexture) textures.add(value);
+    });
+  });
+  textures.forEach(texture => texture.dispose());
+  materials.forEach(material => material.dispose());
+  geometries.forEach(geometry => geometry.dispose());
+  Object.values(GEO).forEach(geometry => geometry.dispose());
+  Object.keys(MAT).forEach(key => delete MAT[key]);
+  Object.keys(GEO).forEach(key => delete GEO[key]);
+  scene.clear(); scene = null; wheels = null; startLights = [];
+  carMeshes.clear();
+}
+
+function selectTrack(trackId) {
+  if (T.id === trackId) return;
+  if (game) { clearCars(); game = null; }
+  disposeWorld();
+  T = buildTrack(trackId);
+  buildWorld();
+  buildMinimap();
+  buildTrackMap();
+}
+
 function buildMenu() {
   const seg = (id, opts, key, cb) => {
     const el = $(id); el.innerHTML = '';
     opts.forEach((o, i) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = o; b.className = settings[key] === i ? 'on' : ''; b.onclick = () => { settings[key] = i; [...el.children].forEach((x, j) => x.classList.toggle('on', j === i)); if (cb) cb(i); }; el.appendChild(b); });
   };
   settings.lapsIdx = 1; settings.autoIdx = 0;
+  seg('o-track', TRACK_OPTIONS.map(id => TRACKS[id].name), 'trackIdx', i => selectTrack(TRACK_OPTIONS[i]));
   seg('o-laps', ['3 laps', '5 laps', '10 laps'], 'lapsIdx', i => { settings.laps = [3, 5, 10][i]; });
   seg('o-diff', DIFFICULTY.map(d => d.name), 'diff', i => { $('diff-desc').textContent = DIFFICULTY[i].desc; });
   seg('o-assist', ASSIST_PRESETS.map(a => a.name), 'assist');
   seg('o-gear', ['Automatic', 'Manual paddles'], 'autoIdx', i => { settings.auto = i === 0; });
   seg('o-eng', ['V8 (2006 style)', 'V6 turbo hybrid'], 'engine');
   $('diff-desc').textContent = DIFFICULTY[settings.diff].desc;
-  // track map
+  buildTrackMap();
+}
+
+function buildTrackMap() {
   let minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
   for (let i = 0; i < T.n; i++) { minX = Math.min(minX, T.X[i]); maxX = Math.max(maxX, T.X[i]); minY = Math.min(minY, T.Y[i]); maxY = Math.max(maxY, T.Y[i]); }
   const W = 760, H = 470, pad = 60, sc = Math.min((W - pad * 2) / (maxX - minX), (H - pad * 2) / (maxY - minY));
@@ -2435,6 +2593,7 @@ function buildMenu() {
   const drs = T.drsZones.map(z => { let s = ''; const a = Math.floor(z.s0 / T.ds), b = Math.floor(z.s1 / T.ds); let i = a, first = true; for (let k = 0; k < T.n; k++) { const idx = (a + k) % T.n; const [x, y] = mp(T.X[idx], T.Y[idx]); s += (first ? 'M' : 'L') + x + ' ' + y; first = false; if (idx === b) break; } return `<path d="${s}" fill="none" stroke="#ffd23f" stroke-width="7" stroke-linecap="round" opacity="0.9"/>`; }).join('');
   const labels = T.corners.map(c => { const i = Math.floor(c.s / T.ds) % T.n, side = T.kappa[i] > 0 ? 1 : -1; const [x, y] = mp(T.X[i] - T.nx[i] * side * 52 / sc, T.Y[i] - T.ny[i] * side * 52 / sc); return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle">${c.name}</text>`; }).join('');
   const [sx, sy] = mp(T.X[0], T.Y[0]);
+  $('track-meta').textContent = `${T.direction} lap · ${T.lengthKm.toFixed(2)} km · ${T.turns} turns`;
   $('map').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Track map"><path d="${d}" fill="none" stroke="#0c0e10" stroke-width="15" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#e9e6dd" stroke-width="9" stroke-linejoin="round"/>${drs}<path d="${d}" fill="none" stroke="#2a2d31" stroke-width="3" stroke-linejoin="round" stroke-dasharray="1 7" opacity=".0"/><rect x="${sx - 11}" y="${sy - 3}" width="22" height="6" fill="#e10600" stroke="#fff" stroke-width="1.5"/>${labels}</svg>`;
 }
 
@@ -2496,7 +2655,7 @@ function init() {
   $('loading').classList.add('hide');
   requestAnimationFrame(frame);
 }
-window.__f1 = { T, get game() { return game; }, settings, startRace, get renderer() { return renderer; } };
+window.__f1 = { get T() { return T; }, get game() { return game; }, settings, startRace, get renderer() { return renderer; } };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
 
