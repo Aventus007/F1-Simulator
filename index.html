@@ -1221,9 +1221,9 @@ function makeRoadMaps() {
       const groove = Math.abs(Math.sin(u * 86.0 + hash2(x, 2) * 0.4));
       const streak = groove < 0.22 ? (0.22 - groove) * (0.65 + 0.35 * hash2(x, y >> 5)) : 0;
       const lane = Math.exp(-Math.pow((u - 0.36) / 0.045, 2)) + Math.exp(-Math.pow((u - 0.64) / 0.045, 2));
-      let r = 58 + hh * 28 - rubber * 16 - streak * 22 - lane * 12;
-      let gch = 60 + hh * 26 - rubber * 16 - streak * 22 - lane * 12;
-      let b = 64 + hh * 22 - rubber * 14 - streak * 18 - lane * 10;
+      let r = (58 + hh * 28 - rubber * 16 - streak * 22 - lane * 12) * 1.015;
+      let gch = (60 + hh * 26 - rubber * 16 - streak * 22 - lane * 12) * 1.015;
+      let b = (64 + hh * 22 - rubber * 14 - streak * 18 - lane * 10) * 1.015;
       if (line) { r = 226; gch = 224; b = 214; }
       const i4 = (y * w + x) * 4;
       imgs[0].data[i4] = r; imgs[0].data[i4 + 1] = gch; imgs[0].data[i4 + 2] = b; imgs[0].data[i4 + 3] = 255;
@@ -1332,8 +1332,8 @@ function buildWorld() {
       '  col = mix(col, vec3(0.96, 0.97, 0.98) * cloudLight, cloud * 0.76);',
       '  float sun = pow(max(dot(dir, normalize(uSun)), 0.0), 1800.0);',
       '  float glow = pow(max(dot(dir, normalize(uSun)), 0.0), 24.0);',
-      '  col += vec3(1.0, 0.98, 0.92) * sun * 3.2;',
-      '  col += vec3(1.0, 0.88, 0.72) * glow * 0.20;',
+      '  col += vec3(1.0, 0.98, 0.92) * sun * 3.104;',
+      '  col += vec3(1.0, 0.88, 0.72) * glow * 0.194;',
       '  gl_FragColor = vec4(col, 1.0);',
       '}'
     ].join('\n')
@@ -1345,7 +1345,7 @@ function buildWorld() {
   scene.environment = environmentMap;
 
   scene.add(new THREE.HemisphereLight(0xd5e4f5, 0x3e5334, 0.48));
-  sunLight = new THREE.DirectionalLight(0xfff3dc, 0.663);
+  sunLight = new THREE.DirectionalLight(0xfff3dc, 0.64311);
   const fill = new THREE.DirectionalLight(0xc5d6ea, 0.22);
   fill.position.set(0.55, 0.35, -0.45);
   scene.add(fill);
